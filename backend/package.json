@@ -1,0 +1,30 @@
+{
+    "name": "makswell-group-backend",
+    "version": "1.0.0",
+    "license": "MIT",
+    "scripts": {
+        "dev": "yarn ts-node src/index.ts",
+        "build": "yarn tsc",
+        "start": "node build/index.js",
+        "format": "yarn prettier src --write",
+        "format:check": "yarn prettier src --check"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.3",
+        "@types/node": "^24.0.13",
+        "@types/pg": "^8",
+        "prettier": "^3.6.2",
+        "typescript": "^5.8.3"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^17.2.0",
+        "express": "^5.1.0",
+        "pg": "^8.16.3",
+        "reflect-metadata": "^0.2.2",
+        "ts-node": "^10.9.2",
+        "typeorm": "^0.3.25",
+        "zod": "^4.0.5"
+    }
+}

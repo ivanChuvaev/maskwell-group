@@ -1,0 +1,16 @@
+{
+  "name": "makswell-group",
+  "version": "1.0.0",
+  "description": "Test task form Maswell Group",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "build": "yarn workspace makswell-group-backend build && yarn workspace makswell-group-frontend build",
+    "start": "yarn workspace makswell-group-backend start"
+  },
+  "author": "Ivan Chuvaev",
+  "license": "MIT"
+}
