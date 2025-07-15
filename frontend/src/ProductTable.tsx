@@ -5,7 +5,8 @@ import { Button } from './ui/Button'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
 
-// Helper functions for URL query parameters
+const POSSIBLE_LIMITS = [5, 10, 20, 50, 100]
+
 const getUrlParams = () => {
   const searchParams = new URLSearchParams(window.location.search)
   return {
@@ -36,9 +37,9 @@ export const ProductTable = () => {
     placeholderData: (previousData) => previousData,
   })
 
-  const { data: products, total: totalCount = 0 } = data ?? {}
+  const { data: products, total: totalCount } = data ?? {}
 
-  const hasNextPage = totalCount > page * limit
+  const hasNextPage = totalCount !== undefined && totalCount > page * limit
   const hasPreviousPage = page > 1
 
   const { mutate: deleteProduct } = useMutation({
@@ -89,6 +90,29 @@ export const ProductTable = () => {
     window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
   }, [])
+
+  useEffect(() => {
+    if (totalCount && page > Math.ceil(totalCount / limit)) {
+      setPage(Math.ceil(totalCount / limit))
+    }
+  }, [totalCount])
+
+  useEffect(() => {
+    if (!POSSIBLE_LIMITS.includes(limit)) {
+      let distance = Math.abs(POSSIBLE_LIMITS[0] - limit)
+      let minLimit = POSSIBLE_LIMITS[0]
+
+      for (let i = 1; i < POSSIBLE_LIMITS.length; i++) {
+        const currentDistance = Math.abs(POSSIBLE_LIMITS[i] - limit)
+        if (currentDistance < distance) {
+          distance = currentDistance
+          minLimit = POSSIBLE_LIMITS[i]
+        }
+      }
+
+      setLimit(minLimit)
+    }
+  }, [limit])
 
   return (
     <div className="md:container md:mx-auto my-4">
@@ -142,14 +166,14 @@ export const ProductTable = () => {
             setPage(1)
           }}
         >
-          <option value={5}>5</option>
-          <option value={10}>10</option>
-          <option value={20}>20</option>
-          <option value={50}>50</option>
-          <option value={100}>100</option>
+          {POSSIBLE_LIMITS.map((limit) => (
+            <option key={limit} value={limit}>
+              {limit}
+            </option>
+          ))}
         </select>
         <div className="flex items-center gap-2">
-          {(hasPreviousPage || hasNextPage) && (
+          {(hasPreviousPage || hasNextPage) && !!totalCount && (
             <>
               <Button
                 onClick={() => setPage(Math.max(page - 1, 0))}

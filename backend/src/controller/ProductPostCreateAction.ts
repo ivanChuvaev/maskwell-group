@@ -2,22 +2,24 @@ import { Request, Response } from 'express'
 import { AppDataSource } from '../data-source'
 import { Product } from '../entity/Product'
 import z from 'zod'
-
-const bodySchema = z.object({
-    name: z.string('Name must be string').min(1, 'Name is required'),
-    article: z.string('Article must be string').min(1, 'Article is required'),
-    price: z.number('Price must be number'),
-    quantity: z.number('Quantity must be number'),
-})
+import { productUpdateCreateSchema } from '../schema/productUpdateCreateSchema'
 
 export async function ProductPostCreateAction(
     request: Request,
     response: Response
 ) {
     try {
-        const body = bodySchema.parse(request.body)
+        const body = productUpdateCreateSchema.parse(request.body)
 
         const productRepository = AppDataSource.getRepository(Product)
+
+        if (await productRepository.findOneBy({ article: body.article })) {
+            response.status(409).json({
+                message: 'Артикул уже существует',
+                field: 'article',
+            })
+            return
+        }
 
         const product = new Product()
         product.name = body.name
@@ -26,7 +28,6 @@ export async function ProductPostCreateAction(
         product.quantity = body.quantity
 
         const dbProduct = await productRepository.save(product)
-
         response.json(dbProduct)
     } catch (e) {
         if (e instanceof z.ZodError) {
